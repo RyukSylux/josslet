@@ -1,0 +1,22 @@
+meta {
+  name: login
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://{{host}}:3000/auth/login
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+   "email":"admin@example.com",
+   "password":"secret123"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
