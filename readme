@@ -1,0 +1,29 @@
+# TP — Backend Express sécurisé + MySQL
+
+Ce projet implémente une API REST sécurisée pour une librairie en ligne en Node/Express et MySQL.
+
+
+Principales caractéristiques:
+- mysql2/promise avec requêtes paramétrées uniquement
+- Centralized error handler (détails d'erreur loggés côté serveur uniquement)
+- Rate limiting
+- JWT auth pour opérations écriture
+- Validation stricte via express-validator
+- Pagination et recherche sécurisée
+
+
+Voir les fichiers pour l'implémentation. Copiez `.env.example` vers `.env`, installez les dépendances, créez la BDD et les tables (voir sql/schema.sql), puis `npm start`.
+
+
+Tests rapides (exemples):
+- Health: `curl http://localhost:3000/health`
+- Register admin: `curl -X POST http://localhost:3000/auth/register -H 'Content-Type: application/json' -d '{"email":"admin@example.com","password":"secret123"}'`
+- Login: `curl -X POST http://localhost:3000/auth/login -H 'Content-Type: application/json' -d '{"email":"admin@example.com","password":"secret123"}'`
+- Attempt SQL injection: `curl 'http://localhost:3000/clients?search=%27%20OR%201%3D1%20--%20'` → should NOT return all rows.
+- Rate limit: send many requests quickly and expect 429 after limit.
+
+
+Security notes:
+- Never expose SQL errors to client. They are logged with winston only.
+- All SQL uses `?` placeholders.
+- All write endpoints require a valid JWT (401 if missing/invalid).

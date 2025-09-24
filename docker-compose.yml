@@ -1,0 +1,45 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sql_sio
+      TZ: Europe/Paris
+      # Optionnel si tu veux autoriser root depuis l'extérieur (sinon crée un user)
+      # MYSQL_ROOT_HOST: "%"
+    ports:
+      - "3306:3306"   # <- MySQL accessible depuis l'hôte sur 127.0.0.1:3307
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    command: >
+      --default-authentication-plugin=caching_sha2_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_0900_ai_ci
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: pma
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ABSOLUTE_URI: http://localhost:8080/
+      TZ: Europe/Paris
+    ports:
+      - "8080:80"     # <- phpMyAdmin sur http://localhost:8080
+    # Optionnel : limite mémoire légère
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 256M
+
+volumes:
+  mysql_data:
