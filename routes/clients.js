@@ -17,12 +17,15 @@ router.get(
       const limit = Math.min(100, Math.max(1, req.query.limit || 10));
       const offset = (page - 1) * limit;
 
-      // search by name or email
       const like = `%${search}%`;
-      const [rows] = await db.execute(
-        "SELECT id, nom, email, vip FROM clients WHERE nom LIKE ? OR email LIKE ? LIMIT ? OFFSET ?",
-        [like, like, limit, offset]
-      );
+      const sql = `
+        SELECT id, nom, email, vip
+        FROM clients
+        WHERE nom LIKE ? OR email LIKE ?
+        LIMIT ${limit} OFFSET ${offset}
+      `;
+
+      const [rows] = await db.execute(sql, [like, like]);
       res.json({ page, limit, results: rows });
     } catch (e) {
       e.sql = e.sql || null;
@@ -30,6 +33,7 @@ router.get(
     }
   }
 );
+
 
 router.get("/:id", param("id").isInt(), async (req, res, next) => {
   try {
